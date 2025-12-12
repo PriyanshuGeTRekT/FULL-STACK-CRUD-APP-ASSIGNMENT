@@ -1,60 +1,65 @@
 const nodemailer = require('nodemailer');
 
-// Create a transporter. 
-// For real apps, user would swap this with SendGrid/AWS SES credentials in .env
 let transporter;
 
 const initMailService = async () => {
     if (process.env.SMTP_HOST) {
-        // Use configured SMTP
+        // Configured SMTP (Real Email)
         transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: process.env.SMTP_PORT || 587,
-            secure: false,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: process.env.SMTP_USER,
                 pass: process.env.SMTP_PASS,
             },
         });
+        console.log('MailService: Configured with custom SMTP');
     } else {
-        // Use Ethereal for testing (no auth needed initially, or auto-generate)
-        const testAccount = await nodemailer.createTestAccount();
-
+        // Default: JSON Transport (Logs to Console)
+        // reliable alternative to Ethereal that never crashes
         transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
-            secure: false,
-            auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
-            },
+            jsonTransport: true
         });
-
-        console.log('MailService: Using Ethereal (Test) Account');
-        console.log(`User: ${testAccount.user}, Pass: ${testAccount.pass}`);
+        console.log('MailService: No SMTP configured. Using Console/JSON Transport (Simulated).');
     }
 };
 
-// Initialize on load (or could be lazy)
-initMailService().catch(console.error);
+// Initialize immediately
+initMailService();
 
 const sendWelcomeEmail = async (user) => {
     if (!transporter) {
-        await initMailService();
+        console.log('MailService: Not initialized yet.');
+        return;
     }
 
-    const info = await transporter.sendMail({
-        from: '"Junior Dev App" <no-reply@crudapp.test>',
-        to: user.email,
-        subject: 'Welcome to the platform!',
-        text: `Hello ${user.name},\n\nWelcome to our simple User CRUD platform. We created your account successfully.\n\nCheers,\nThe Team`,
-        html: `<p>Hello <strong>${user.name}</strong>,</p><p>Welcome to our simple User CRUD platform. We created your account successfully.</p><p>Cheers,<br>The Team</p>`,
-    });
+    try {
+        const message = {
+            from: '"Junior Dev App" <no-reply@crudapp.test>',
+            to: user.email,
+            subject: 'Welcome to the platform!',
+            text: `Hello ${user.name},\n\nWelcome to our simple User CRUD platform. We created your account successfully.\n\nCheers,\nThe Team`,
+            html: `<p>Hello <strong>${user.name}</strong>,</p><p>Welcome to our simple User CRUD platform. We created your account successfully.</p><p>Cheers,<br>The Team</p>`,
+        };
 
-    console.log(`Message sent: ${info.messageId}`);
-    // Preview only available when using Ethereal
-    if (nodemailer.getTestMessageUrl(info)) {
-        console.log(`Preview URL: ${nodemailer.getTestMessageUrl(info)}`);
+        const info = await transporter.sendMail(message);
+
+        if (process.env.SMTP_HOST) {
+            console.log(`Message sent: ${info.messageId}`);
+        } else {
+            // Log the simulated email clearly to console
+            console.log('----------------------------------------------------');
+            console.log('📧  EMAIL SIMULATION (No external service used)   📧');
+            console.log('----------------------------------------------------');
+            console.log(`To:      ${user.email}`);
+            console.log(`Subject: Welcome to the platform!`);
+            console.log('----------------------------------------------------');
+            console.log(info.message); // This contains the full JSON of the email
+            console.log('----------------------------------------------------');
+        }
+    } catch (err) {
+        console.error('MailService: Failed to send email', err);
     }
 };
 

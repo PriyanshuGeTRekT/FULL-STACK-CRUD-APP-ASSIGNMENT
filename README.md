@@ -54,8 +54,10 @@ MONGO_URI=mongodb://127.0.0.1:27017/junior-crud-db
 ```
 
 ## Email
-By default, the app uses **Ethereal Email** (a fake SMTP service). 
-- When you create a user, check the server console for the "Preview URL" to see the sent email.
+By default, the app uses **Console Simulation** (JSON Transport).
+- No external internet connection or accounts required.
+- When you create a user, the email details will be **printed to the backend terminal** window.
+- To use real email, uncomment the SMTP settings in `.env` and add your SendGrid/AWS credentials.
 - To use real email, uncomment the SMTP settings in `.env` and add your SendGrid/AWS credentials.
 
 ## Seeding Data
