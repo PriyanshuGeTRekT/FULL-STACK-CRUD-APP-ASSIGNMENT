@@ -3,8 +3,9 @@
 This is a simple full-stack User Management application built to demonstrate CRUD operations, email notifications, and basic analytics.
 
 ## Tech Stack
-- **Frontend**: React (Vite), Tailwind CSS, Axios, Chart.js
-- **Backend**: Node.js, Express, MongoDB (Mongoose), Nodemailer
+- **Frontend**: React
+- **Backend**: Node.js, Express
+- **Database**: MongoDB
 
 ## Project Structure
 - `backend/`: API server, database models, and email service.
