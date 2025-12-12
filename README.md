@@ -36,6 +36,16 @@ npm run dev
 # Client starts on http://localhost:5173
 ```
 
+## Running the Demo
+To record a demo of this application:
+1. Open two terminal windows.
+2. Terminal 1 (Backend): `cd backend && npm run dev`
+3. Terminal 2 (Frontend): `cd frontend && npm run dev`
+4. Open your browser to `http://localhost:5173`.
+5. Create a new user (check terminal for the "fake" email link).
+6. View the Dashboard analytics chart updating.
+
+
 ## Configuration (.env)
 Copy `backend/.env.example` to `backend/.env`:
 ```
