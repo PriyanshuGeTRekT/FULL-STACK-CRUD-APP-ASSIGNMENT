@@ -16,6 +16,14 @@ const initMailService = async () => {
                 },
             });
         } else {
+            // Ethereal is unstable on some hosting (Render). 
+            // In production, if no real SMTP is provided, strictly use Mock Mode.
+            if (process.env.NODE_ENV === 'production') {
+                console.log('MailService: Production environment detected without SMTP. Using Mock Mode.');
+                mockMode = true;
+                return;
+            }
+
             console.log('MailService: Attempting to connect to Ethereal...');
             const testAccount = await nodemailer.createTestAccount();
 
