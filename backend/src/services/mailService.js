@@ -18,20 +18,25 @@ const initMailService = async () => {
         });
     } else {
         // Use Ethereal for testing (no auth needed initially, or auto-generate)
-        const testAccount = await nodemailer.createTestAccount();
+        try {
+            const testAccount = await nodemailer.createTestAccount();
 
-        transporter = nodemailer.createTransport({
-            host: 'smtp.ethereal.email',
-            port: 587,
-            secure: false,
-            auth: {
-                user: testAccount.user,
-                pass: testAccount.pass,
-            },
-        });
+            transporter = nodemailer.createTransport({
+                host: 'smtp.ethereal.email',
+                port: 587,
+                secure: false,
+                auth: {
+                    user: testAccount.user,
+                    pass: testAccount.pass,
+                },
+            });
 
-        console.log('MailService: Using Ethereal (Test) Account');
-        console.log(`User: ${testAccount.user}, Pass: ${testAccount.pass}`);
+            console.log('MailService: Using Ethereal (Test) Account');
+            console.log(`User: ${testAccount.user}, Pass: ${testAccount.pass}`);
+        } catch (err) {
+            console.error('MailService: Failed to create Ethereal account. Email will be disabled.', err.message);
+            transporter = null;
+        }
     }
 };
 
@@ -41,6 +46,11 @@ initMailService().catch(console.error);
 const sendWelcomeEmail = async (user) => {
     if (!transporter) {
         await initMailService();
+    }
+
+    if (!transporter) {
+        console.log('MailService: Email disabled (no transporter). Skipping welcome email.');
+        return;
     }
 
     const info = await transporter.sendMail({
