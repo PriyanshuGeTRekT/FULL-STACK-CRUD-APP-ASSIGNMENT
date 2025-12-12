@@ -6,6 +6,7 @@ const { sendWelcomeEmail } = require('../services/mailService');
 const getUsers = async (req, res) => {
     try {
         const users = await User.find().sort({ createdAt: -1 });
+        console.log(`DEBUG: Found ${users.length} users in DB`);
         res.json({ success: true, count: users.length, data: users });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Server Error' });
@@ -88,24 +89,81 @@ const deleteUser = async (req, res) => {
 // @route   GET /api/analytics/regions
 const getAnalytics = async (req, res) => {
     try {
+        // DEBUG: Check data quality
+        const sampleUser = await User.findOne();
+        console.log('DEBUG: Analytics Sample User:', sampleUser);
+
         // Group by State
         const usersByState = await User.aggregate([
-            { $group: { _id: "$state", count: { $sum: 1 } } }
+            { $group: { _id: { $toLower: "$state" }, count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
         ]);
+        console.log('DEBUG: Aggregation State Result:', usersByState);
 
         // Group by City
         const usersByCity = await User.aggregate([
-            { $group: { _id: "$city", count: { $sum: 1 } } }
+            { $group: { _id: { $toLower: "$city" }, count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
         ]);
+        console.log('DEBUG: Aggregation City Result:', usersByCity);
+
+        // Email Domain Distribution (Interesting Stat!)
+        // MongoDB doesn't have a simple split in older versions, but we can do it with regex or just simple string ops if version allows.
+        // Fallback: Fetch all emails and process in Node if DB is limited, but aggregation is better.
+        // Using $substr and $strLenCP if complex, but let's try a simple approach or simple regex.
+        // Actually, for a small app, processing in Node is perfectly fine and safer for compatibility.
+        // Let's stick to aggregation for performance if possible, but simplest is process in Node for this assignment.
+
+        // Alternative: Just group by Email Provider (simulated in Node for clarity/safety on unknown Mongo versions)
+        const allUsers = await User.find({}, 'email createdAt');
+
+        const domains = {};
+        allUsers.forEach(u => {
+            if (u.email) {
+                const parts = u.email.split('@');
+                if (parts.length > 1) {
+                    const domain = parts[1];
+                    domains[domain] = (domains[domain] || 0) + 1;
+                }
+            }
+        });
+        const usersByDomain = Object.entries(domains)
+            .map(([domain, count]) => ({ _id: domain, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        // Growth (Last 7 Days)
+        const last7Days = {};
+        const today = new Date();
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            last7Days[d.toISOString().split('T')[0]] = 0;
+        }
+
+        allUsers.forEach(u => {
+            if (u.createdAt) {
+                const dateStr = u.createdAt.toISOString().split('T')[0];
+                if (last7Days[dateStr] !== undefined) {
+                    last7Days[dateStr]++;
+                }
+            }
+        });
+        const userGrowth = Object.entries(last7Days).map(([date, count]) => ({ _id: date, count }));
 
         res.json({
             success: true,
             data: {
                 byState: usersByState,
-                byCity: usersByCity
+                byCity: usersByCity,
+                byDomain: usersByDomain,
+                growth: userGrowth
             }
         });
     } catch (err) {
+        console.error('Analytics Error:', err);
         res.status(500).json({ success: false, message: 'Analytics Error' });
     }
 };

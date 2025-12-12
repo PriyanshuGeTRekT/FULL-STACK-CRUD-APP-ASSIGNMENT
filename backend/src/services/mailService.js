@@ -36,7 +36,7 @@ const sendWelcomeEmail = async (user) => {
 
     try {
         const message = {
-            from: '"Junior Dev App" <no-reply@crudapp.test>',
+            from: '"User Management App" <no-reply@crudapp.test>',
             to: user.email,
             subject: 'Welcome to the platform!',
             text: `Hello ${user.name},\n\nWelcome to our simple User CRUD platform. We created your account successfully.\n\nCheers,\nThe Team`,

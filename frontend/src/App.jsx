@@ -6,18 +6,25 @@ import UserForm from './components/UserForm';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-100 text-gray-900 pb-10">
-        <nav className="bg-white shadow p-4 mb-6">
-          <div className="container mx-auto">
-            <h1 className="text-xl font-bold text-blue-600">Junior CRUD App</h1>
+      <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col font-sans">
+        <nav className="bg-gradient-to-r from-blue-600 to-indigo-700 shadow-lg p-4">
+          <div className="container mx-auto flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-white tracking-wide">User Management</h1>
+            <span className="text-blue-100 text-sm">Admin Portal</span>
           </div>
         </nav>
 
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/users/new" element={<UserForm />} />
-          <Route path="/users/:id/edit" element={<UserForm />} />
-        </Routes>
+        <div className="flex-grow container mx-auto p-6">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/users/new" element={<UserForm />} />
+            <Route path="/users/:id/edit" element={<UserForm />} />
+          </Routes>
+        </div>
+
+        <footer className="bg-white border-t py-4 text-center text-gray-400 text-sm">
+          &copy; {new Date().getFullYear()} User Management System
+        </footer>
       </div>
     </Router>
   );

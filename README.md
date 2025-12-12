@@ -1,4 +1,4 @@
-# Junior Developer CRUD App
+# User Management System
 
 This is a simple full-stack User Management application built to demonstrate CRUD operations, email notifications, and basic analytics.
 

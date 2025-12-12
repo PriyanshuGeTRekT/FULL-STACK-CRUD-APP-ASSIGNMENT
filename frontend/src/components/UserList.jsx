@@ -3,45 +3,57 @@ import { Link } from 'react-router-dom';
 
 const UserList = ({ users, onDelete }) => {
     return (
-        <div className="bg-white p-6 rounded-lg shadow-md">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Users ({users.length})</h2>
+        <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-800">Team Members</h2>
+                    <p className="text-sm text-gray-500">Manage your users and their details</p>
+                </div>
                 <Link
                     to="/users/new"
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-lg shadow-sm transition-all duration-200 flex items-center gap-2 font-medium"
                 >
-                    Add User
+                    + Add New User
                 </Link>
             </div>
 
             <div className="overflow-x-auto">
                 <table className="min-w-full text-left">
-                    <thead>
-                        <tr className="bg-gray-100 border-b">
-                            <th className="py-2 px-4">Name</th>
-                            <th className="py-2 px-4">Email</th>
-                            <th className="py-2 px-4">City</th>
-                            <th className="py-2 px-4">State</th>
-                            <th className="py-2 px-4">Actions</th>
+                    <thead className="bg-gray-50 text-gray-600 uppercase text-xs tracking-wider">
+                        <tr>
+                            <th className="py-4 px-6 font-semibold">Name</th>
+                            <th className="py-4 px-6 font-semibold">Email</th>
+                            <th className="py-4 px-6 font-semibold">Location</th>
+                            <th className="py-4 px-6 font-semibold text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="divide-y divide-gray-100">
                         {users.map(user => (
-                            <tr key={user._id} className="border-b hover:bg-gray-50">
-                                <td className="py-2 px-4">{user.name}</td>
-                                <td className="py-2 px-4">{user.email}</td>
-                                <td className="py-2 px-4">{user.city}</td>
-                                <td className="py-2 px-4">{user.state}</td>
-                                <td className="py-2 px-4 space-x-2">
+                            <tr key={user._id} className="hover:bg-gray-50 transition-colors duration-150">
+                                <td className="py-4 px-6 font-medium text-gray-900">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                                            {user.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        {user.name}
+                                    </div>
+                                </td>
+                                <td className="py-4 px-6 text-gray-600">{user.email}</td>
+                                <td className="py-4 px-6">
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                                        {user.city}, {user.state}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-6 text-right space-x-3">
                                     <Link
                                         to={`/users/${user._id}/edit`}
-                                        className="text-yellow-600 hover:underline"
+                                        className="text-indigo-600 hover:text-indigo-900 font-medium text-sm hover:underline"
                                     >
                                         Edit
                                     </Link>
                                     <button
                                         onClick={() => onDelete(user._id)}
-                                        className="text-red-500 hover:underline"
+                                        className="text-red-500 hover:text-red-700 font-medium text-sm hover:underline transition-colors"
                                     >
                                         Delete
                                     </button>
@@ -50,8 +62,9 @@ const UserList = ({ users, onDelete }) => {
                         ))}
                         {users.length === 0 && (
                             <tr>
-                                <td colSpan="5" className="text-center py-4 text-gray-500">
-                                    No users found.
+                                <td colSpan="4" className="text-center py-12 text-gray-400">
+                                    <p className="text-lg">No users found.</p>
+                                    <p className="text-sm">Get started by creating a new user.</p>
                                 </td>
                             </tr>
                         )}
