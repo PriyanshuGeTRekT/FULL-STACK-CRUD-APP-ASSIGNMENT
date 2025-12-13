@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const UserList = ({ users, onDelete }) => {
+const UserList = ({ users, onDelete, onNotify }) => {
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
@@ -45,6 +45,18 @@ const UserList = ({ users, onDelete }) => {
                                     </span>
                                 </td>
                                 <td className="py-4 px-6 text-right space-x-3">
+                                    <button
+                                        onClick={() => {
+                                            const subject = window.prompt('Email Subject:');
+                                            if (!subject) return;
+                                            const message = window.prompt('Email Message:');
+                                            if (!message) return;
+                                            onNotify(user._id, subject, message);
+                                        }}
+                                        className="text-green-600 hover:text-green-900 font-medium text-sm hover:underline"
+                                    >
+                                        Notify
+                                    </button>
                                     <Link
                                         to={`/users/${user._id}/edit`}
                                         className="text-indigo-600 hover:text-indigo-900 font-medium text-sm hover:underline"

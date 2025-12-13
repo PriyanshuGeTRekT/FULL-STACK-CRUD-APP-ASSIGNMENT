@@ -4,22 +4,22 @@ const cors = require('cors');
 const connectDB = require('./db');
 const userRoutes = require('./routes/users');
 
-// Load env vars
+// Load up environment config.
 dotenv.config();
 
-// Connect to database
+// Hook up the database.
 connectDB();
 
 const app = express();
 
-// Middleware
+// Standard middleware setup.
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Wire up our routes.
 app.use('/api/users', userRoutes);
 
-// Basic route
+// Sanity check endpoint.
 app.get('/', (req, res) => {
     res.send('API is running...');
 });

@@ -1,21 +1,14 @@
 # User Management System
 
-This is a simple full-stack User Management application built to demonstrate CRUD operations, email notifications, and basic analytics.
+This is a simple full-stack User Management application built to demonstrate CRUD operations, email notifications, and detailed analytics.
 
 ## Tech Stack
-- **Frontend**: React
+- **Frontend**: React, Tailwind CSS
 - **Backend**: Node.js, Express
 - **Database**: MongoDB
 
-## Project Structure
-- `backend/`: API server, database models, and email service.
-  - `controllers/`: Request handlers (keep routes clean).
-  - `services/`: External integrations (email).
-- `frontend/`: React UI.
-  - `components/`: Reusable UI parts (Forms, Lists).
-  - `pages/`: Main views (Dashboard).
 
-## Prerequisites
+## Requirements
 - Node.js (v14+)
 - MongoDB (Local or Atlas URI)
 
@@ -43,42 +36,17 @@ To record a demo of this application:
 2. Terminal 1 (Backend): `cd backend && npm run dev`
 3. Terminal 2 (Frontend): `cd frontend && npm run dev`
 4. Open your browser to `http://localhost:5173`.
-5. Create a new user (check terminal for the "fake" email link).
+5. Create a new user.
 6. View the Dashboard analytics chart updating.
 
 
-## Configuration (.env)
-Copy `backend/.env.example` to `backend/.env`:
-```
-PORT=5000
-MONGO_URI=mongodb://127.0.0.1:27017/junior-crud-db
-```
 
-## Email
-By default, the app uses **Console Simulation** (JSON Transport).
+## Email Notification
+
 - No external internet connection or accounts required.
-- When you create a user, the email details will be **printed to the backend terminal** window.
-- To use real email, uncomment the SMTP settings in `.env` and add your SendGrid/AWS credentials.
-- To use real email, uncomment the SMTP settings in `.env` and add your SendGrid/AWS credentials.
+- When you create a user, the email details will be printed in the terminal window.
 
-## Seeding Data
-To populate the database with sample users for the analytics chart:
-```bash
-cd backend
-node seed.js
-```
+
 
 ## API Testing
-You can test the API using curl or Postman:
-
-**Get Users**
-```bash
-curl http://localhost:5000/api/users
-```
-
-**Create User**
-```bash
-curl -X POST http://localhost:5000/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Test User", "email": "test@test.com", "city": "NYC", "state": "NY"}'
-```
+You can test the API using postman

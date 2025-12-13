@@ -6,10 +6,11 @@ const {
     createUser,
     updateUser,
     deleteUser,
-    getAnalytics
+    getAnalytics,
+    sendUserNotification
 } = require('../controllers/userController');
 
-// Analytics must be before /:id to not be matched as an ID
+// Gotta put analytics first so it doesn't get mistaken for an ID.
 router.get('/analytics/regions', getAnalytics);
 
 router.route('/')
@@ -20,5 +21,7 @@ router.route('/:id')
     .get(getUser)
     .put(updateUser)
     .delete(deleteUser);
+
+router.post('/:id/notify', sendUserNotification);
 
 module.exports = router;

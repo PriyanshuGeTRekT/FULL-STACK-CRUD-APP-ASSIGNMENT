@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import UserList from '../components/UserList';
-import { getUsers, getAnalytics, deleteUser } from '../services/api';
+import { getUsers, getAnalytics, deleteUser, notifyUser } from '../services/api';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -66,6 +66,16 @@ const Dashboard = () => {
             } catch (err) {
                 alert('Failed to delete user');
             }
+        }
+    };
+
+    const handleNotify = async (id, subject, message) => {
+        try {
+            await notifyUser(id, { subject, message });
+            alert('Notification sent successfully!');
+        } catch (err) {
+            console.error('Failed to notify user:', err);
+            alert('Failed to send notification.');
         }
     };
 
@@ -220,7 +230,7 @@ const Dashboard = () => {
                     <div className="px-6 py-4 border-b border-gray-100">
                         <h3 className="text-lg font-bold text-gray-800">Recent Users</h3>
                     </div>
-                    <UserList users={users} onDelete={handleDelete} />
+                    <UserList users={users} onDelete={handleDelete} onNotify={handleNotify} />
                 </div>
             </div>
 

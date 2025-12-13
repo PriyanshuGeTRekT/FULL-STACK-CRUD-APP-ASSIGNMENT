@@ -1,8 +1,7 @@
 const User = require('../models/User');
-const { sendWelcomeEmail } = require('../services/mailService');
+const { sendWelcomeEmail, sendNotificationEmail } = require('../services/mailService');
 
-// @desc    Get all users
-// @route   GET /api/users
+// Grabs everyone. (GET /api/users)
 const getUsers = async (req, res) => {
     try {
         const users = await User.find().sort({ createdAt: -1 });
@@ -13,8 +12,7 @@ const getUsers = async (req, res) => {
     }
 };
 
-// @desc    Get single user
-// @route   GET /api/users/:id
+// Finds just one person. (GET /api/users/:id)
 const getUser = async (req, res) => {
     try {
         const user = await User.findById(req.params.id);
@@ -27,13 +25,12 @@ const getUser = async (req, res) => {
     }
 };
 
-// @desc    Create new user
-// @route   POST /api/users
+// Adds a new face. (POST /api/users)
 const createUser = async (req, res) => {
     try {
         const user = await User.create(req.body);
 
-        // Try to send email, but don't fail the request if email fails
+        // Try sending the welcome email, but don't crash if it bounces.
         try {
             await sendWelcomeEmail(user);
         } catch (emailErr) {
@@ -45,7 +42,7 @@ const createUser = async (req, res) => {
         if (err.code === 11000) {
             return res.status(400).json({ success: false, message: 'Email already exists' });
         }
-        // Validation error
+        // Handle validation mishaps.
         if (err.name === 'ValidationError') {
             const messages = Object.values(err.errors).map(val => val.message);
             return res.status(400).json({ success: false, message: messages.join(', ') });
@@ -54,8 +51,7 @@ const createUser = async (req, res) => {
     }
 };
 
-// @desc    Update user
-// @route   PUT /api/users/:id
+// Updates their info. (PUT /api/users/:id)
 const updateUser = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -71,8 +67,7 @@ const updateUser = async (req, res) => {
     }
 };
 
-// @desc    Delete user
-// @route   DELETE /api/users/:id
+// Removes them from the DB. (DELETE /api/users/:id)
 const deleteUser = async (req, res) => {
     try {
         const user = await User.findByIdAndDelete(req.params.id);
@@ -85,15 +80,14 @@ const deleteUser = async (req, res) => {
     }
 };
 
-// @desc    Get Analytics (Users by state/city)
-// @route   GET /api/analytics/regions
+// Crunches the numbers. (GET /api/analytics/regions)
 const getAnalytics = async (req, res) => {
     try {
-        // DEBUG: Check data quality
+        // Quick data quality check.
         const sampleUser = await User.findOne();
         console.log('DEBUG: Analytics Sample User:', sampleUser);
 
-        // Group by State
+        // Grouping by State.
         const usersByState = await User.aggregate([
             { $group: { _id: { $toLower: "$state" }, count: { $sum: 1 } } },
             { $sort: { count: -1 } },
@@ -101,7 +95,7 @@ const getAnalytics = async (req, res) => {
         ]);
         console.log('DEBUG: Aggregation State Result:', usersByState);
 
-        // Group by City
+        // Grouping by City.
         const usersByCity = await User.aggregate([
             { $group: { _id: { $toLower: "$city" }, count: { $sum: 1 } } },
             { $sort: { count: -1 } },
@@ -109,14 +103,8 @@ const getAnalytics = async (req, res) => {
         ]);
         console.log('DEBUG: Aggregation City Result:', usersByCity);
 
-        // Email Domain Distribution (Interesting Stat!)
-        // MongoDB doesn't have a simple split in older versions, but we can do it with regex or just simple string ops if version allows.
-        // Fallback: Fetch all emails and process in Node if DB is limited, but aggregation is better.
-        // Using $substr and $strLenCP if complex, but let's try a simple approach or simple regex.
-        // Actually, for a small app, processing in Node is perfectly fine and safer for compatibility.
-        // Let's stick to aggregation for performance if possible, but simplest is process in Node for this assignment.
-
-        // Alternative: Just group by Email Provider (simulated in Node for clarity/safety on unknown Mongo versions)
+        // Checking email domains.
+        // Doing this in Node effectively handles the parsing.
         const allUsers = await User.find({}, 'email createdAt');
 
         const domains = {};
@@ -134,7 +122,7 @@ const getAnalytics = async (req, res) => {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
-        // Growth (Last 7 Days)
+        // Tracking growth over the last week.
         const last7Days = {};
         const today = new Date();
         for (let i = 6; i >= 0; i--) {
@@ -167,6 +155,27 @@ const getAnalytics = async (req, res) => {
         res.status(500).json({ success: false, message: 'Analytics Error' });
     }
 };
+// Sends a notification to a user. (POST /api/users/:id/notify)
+const sendUserNotification = async (req, res) => {
+    try {
+        const { subject, message } = req.body;
+        if (!subject || !message) {
+            return res.status(400).json({ success: false, message: 'Subject and message are required' });
+        }
+
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        await sendNotificationEmail(user, subject, message);
+
+        res.json({ success: true, message: 'Notification sent successfully' });
+    } catch (err) {
+        console.error('Notification Error:', err);
+        res.status(500).json({ success: false, message: 'Failed to send notification' });
+    }
+};
 
 module.exports = {
     getUsers,
@@ -174,5 +183,6 @@ module.exports = {
     createUser,
     updateUser,
     deleteUser,
-    getAnalytics
+    getAnalytics,
+    sendUserNotification
 };
