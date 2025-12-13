@@ -6,8 +6,7 @@ const initMailService = () => {
 };
 
 const sendWelcomeEmail = async (user) => {
-    console.error('MailService: Failed to send email', err);
-}
+    console.log(`MailService: Mock sending welcome email to ${user.email}`);
 };
 
-module.exports = { sendWelcomeEmail };
+module.exports = { initMailService, sendWelcomeEmail };
