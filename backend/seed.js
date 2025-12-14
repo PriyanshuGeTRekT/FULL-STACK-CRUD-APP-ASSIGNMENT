@@ -33,14 +33,16 @@ const seedData = async () => {
         await connectDB();
 
         await User.deleteMany();
-        console.log('Data Destroyed...');
+        const logger = require('./src/utils/logger');
+        logger.info('Data Destroyed...');
 
         await User.create(users);
-        console.log('Data Imported!');
+        logger.info('Data Imported!');
 
         process.exit();
     } catch (err) {
-        console.error(err);
+        const logger = require('./src/utils/logger');
+        logger.error(err);
         process.exit(1);
     }
 };

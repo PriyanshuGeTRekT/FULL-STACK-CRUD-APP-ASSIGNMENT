@@ -1,14 +1,11 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const connectDB = require('./db');
 const userRoutes = require('./routes/users');
+const errorHandler = require('./middleware/error');
 
 // Load up environment config.
 dotenv.config();
-
-// Hook up the database.
-connectDB();
 
 const app = express();
 
@@ -24,8 +21,7 @@ app.get('/', (req, res) => {
     res.send('API is running...');
 });
 
-const PORT = process.env.PORT || 5000;
+// Centralized error handler (last middleware)
+app.use(errorHandler);
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+module.exports = app;

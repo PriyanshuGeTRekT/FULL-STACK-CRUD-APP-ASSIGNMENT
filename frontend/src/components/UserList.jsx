@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const UserList = ({ users, onDelete, onNotify }) => {
+    const [notifyState, setNotifyState] = useState({ open: false, userId: null, subject: '', message: '' });
+
+    const openNotify = (userId) => setNotifyState({ open: true, userId, subject: '', message: '' });
+    const closeNotify = () => setNotifyState({ open: false, userId: null, subject: '', message: '' });
+    const handleSendNotify = async () => {
+        if (!notifyState.subject || !notifyState.message) return;
+        await onNotify(notifyState.userId, notifyState.subject, notifyState.message);
+        closeNotify();
+    };
     return (
         <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
             <div className="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50/50">
@@ -46,13 +55,7 @@ const UserList = ({ users, onDelete, onNotify }) => {
                                 </td>
                                 <td className="py-4 px-6 text-right space-x-3">
                                     <button
-                                        onClick={() => {
-                                            const subject = window.prompt('Email Subject:');
-                                            if (!subject) return;
-                                            const message = window.prompt('Email Message:');
-                                            if (!message) return;
-                                            onNotify(user._id, subject, message);
-                                        }}
+                                        onClick={() => openNotify(user._id)}
                                         className="text-green-600 hover:text-green-900 font-medium text-sm hover:underline"
                                     >
                                         Notify
@@ -72,6 +75,33 @@ const UserList = ({ users, onDelete, onNotify }) => {
                                 </td>
                             </tr>
                         ))}
+                            {notifyState.open && (
+                                <tr>
+                                    <td colSpan="4" className="bg-gray-50 p-4">
+                                        <div className="max-w-xl mx-auto">
+                                            <h4 className="font-medium mb-2">Send Notification</h4>
+                                            <div className="grid grid-cols-1 gap-2">
+                                                <input
+                                                    placeholder="Subject"
+                                                    value={notifyState.subject}
+                                                    onChange={(e) => setNotifyState(s => ({ ...s, subject: e.target.value }))}
+                                                    className="w-full border p-2 rounded"
+                                                />
+                                                <textarea
+                                                    placeholder="Message"
+                                                    value={notifyState.message}
+                                                    onChange={(e) => setNotifyState(s => ({ ...s, message: e.target.value }))}
+                                                    className="w-full border p-2 rounded"
+                                                />
+                                                <div className="flex gap-2 justify-end">
+                                                    <button onClick={closeNotify} className="text-gray-600">Cancel</button>
+                                                    <button onClick={handleSendNotify} className="bg-green-600 text-white px-3 py-1 rounded">Send</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
                         {users.length === 0 && (
                             <tr>
                                 <td colSpan="4" className="text-center py-12 text-gray-400">

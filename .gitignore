@@ -1,8 +1,9 @@
-node_modules
-# envs
+node_modules/
+.env
 backend/.env
 frontend/.env
-.env
-dist
+dist/
 .DS_Store
-coverage
+coverage/
+logs/
+*.log

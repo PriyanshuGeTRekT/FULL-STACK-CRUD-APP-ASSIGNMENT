@@ -40,19 +40,17 @@ const Dashboard = () => {
         try {
             // Fetch Users
             const usersRes = await getUsers();
-            console.log('DEBUG: Users API Response:', usersRes.data);
             setUsers(usersRes.data.data || []);
         } catch (err) {
-            console.error('Failed to fetch users:', err);
+            // Failed to fetch users; UI will show empty state.
         }
 
         try {
             // Fetch Analytics (independent)
             const analyticsRes = await getAnalytics();
-            console.log('DEBUG: Analytics API Response:', analyticsRes.data);
             setAnalytics(analyticsRes.data.data);
         } catch (err) {
-            console.error('Failed to fetch analytics:', err);
+            // Failed to fetch analytics; charts will show no data.
         } finally {
             setLoading(false);
         }
@@ -74,7 +72,6 @@ const Dashboard = () => {
             await notifyUser(id, { subject, message });
             alert('Notification sent successfully!');
         } catch (err) {
-            console.error('Failed to notify user:', err);
             alert('Failed to send notification.');
         }
     };
